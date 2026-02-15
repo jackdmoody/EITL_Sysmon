@@ -1,0 +1,53 @@
+routing:
+  r_low: 0.20
+  r_high: 0.80
+  u_low: 0.25
+  enforce_budget: true
+
+capacity:
+  daily_budget: 100
+  priority_weights:
+    alpha_uncertainty: 0.55
+    beta_risk: 0.35
+    gamma_impact: 0.10
+
+impact:
+  host_role_multiplier:
+    domain_controller: 2.0
+    identity_system: 1.7
+    server: 1.3
+    workstation: 1.0
+    unknown: 1.1
+  privilege_signal_multiplier:
+    has_admin_token: 1.3
+    is_privileged_user: 1.4
+    touches_lsass: 1.8
+  network_signal_multiplier:
+    talks_to_internet: 1.2
+    talks_to_rare_asn: 1.2
+    uses_rare_port: 1.1
+
+uncertainty:
+  sources:
+    disagreement: true
+    boundary: true
+    density: false
+  aggregate_weights:
+    disagreement: 0.60
+    boundary: 0.40
+    density: 0.00
+
+calibration:
+  enabled: false
+  method: isotonic
+  min_labeled_units: 200
+
+output:
+  packets:
+    format: md
+    include_baseline_comparisons: true
+    include_top_evidence: 5
+    include_raw_events_limit: 25
+
+logging:
+  level: INFO

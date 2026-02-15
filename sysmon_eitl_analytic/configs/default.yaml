@@ -1,0 +1,129 @@
+pipeline:
+  unit:
+    type: host_window
+    window_hours: 6
+    slide_hours: 6
+
+  time:
+    timezone: UTC
+    add_time_of_day_features: true
+    add_day_of_week_features: true
+
+  host_roles:
+    enabled: true
+    roles_file: configs/roles.yaml
+    default_role: unknown
+
+ingest:
+  input_format: csv
+  timestamp_column: timestamp
+  host_column: host
+  user_column: user
+  event_id_column: event_id
+
+  process_fields:
+    image: image
+    command_line: command_line
+    parent_image: parent_image
+    parent_command_line: parent_command_line
+    hashes: hashes
+    signed: signed
+    signature_status: signature_status
+
+  network_fields:
+    dest_ip: dest_ip
+    dest_port: dest_port
+    proto: proto
+
+schema:
+  normalize:
+    lowercase_images: true
+    strip_paths: false
+    coerce_types: true
+    drop_missing_host: true
+    drop_missing_timestamp: true
+
+enrich:
+  mitre_tagging: true
+  severity_scoring: true
+  allowlists:
+    enabled: true
+    allowlist_paths:
+      - configs/allowlists/known_good_images.txt
+      - configs/allowlists/known_good_parents.txt
+      - configs/allowlists/known_good_hashes.txt
+
+features:
+  rates:
+    enabled: true
+  sequence:
+    enabled: true
+    state_definition: event_id
+    rare_transition:
+      enabled: true
+      min_peer_support: 20
+      rarity_floor: 1e-6
+  graph:
+    enabled: true
+
+baselines:
+  peer_grouping:
+    enabled: true
+    by: [host_role]
+  self_baseline:
+    enabled: false
+    lookback_days: 14
+
+scoring:
+  risk_fusion:
+    method: weighted_sum
+    weights:
+      drift: 0.35
+      outlier: 0.30
+      rules: 0.25
+      graph: 0.10
+  drift:
+    enabled: true
+    method: js_divergence
+    smoothing: 1e-6
+  outlier:
+    enabled: true
+    method: isolation_forest
+    isolation_forest:
+      n_estimators: 200
+      max_samples: 0.75
+      contamination: auto
+      random_state: 42
+  rules:
+    enabled: true
+    enabled_rules:
+      - suspicious_parent_child_chain
+      - lolbin_execution
+      - encoded_powershell
+      - unsigned_in_system_paths
+  graph:
+    enabled: true
+
+uncertainty:
+  disagreement:
+    enabled: true
+    method: variance
+  boundary:
+    enabled: true
+    method: margin
+    margin_center: 0.50
+  density:
+    enabled: false
+    method: hdbscan_membership
+
+outputs:
+  write_parquet: true
+  write_csv: true
+  packets:
+    enabled: true
+    format: md
+    include_raw_events: true
+    raw_events_limit: 25
+
+evaluation:
+  enabled: false

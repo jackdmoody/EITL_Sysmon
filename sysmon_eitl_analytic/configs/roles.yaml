@@ -1,0 +1,24 @@
+# Map hosts to roles and define peer groups.
+# In practice, generate this from CMDB/AD/asset inventory.
+
+host_role_map:
+  # exact hostnames
+  DC01: domain_controller
+  DC02: domain_controller
+  IDP01: identity_system
+  WEB01: server
+
+# optional: regex-like prefixes (simple startswith matching in reference impl)
+prefix_role_map:
+  DC: domain_controller
+  WS: workstation
+  LAP: workstation
+  SRV: server
+
+peer_groups:
+  # default grouping key is host_role
+  domain_controller: { description: "Domain Controllers" }
+  identity_system:   { description: "Identity Providers" }
+  server:            { description: "Servers" }
+  workstation:       { description: "Workstations" }
+  unknown:           { description: "Unknown/Unclassified" }
