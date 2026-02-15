@@ -10,7 +10,7 @@ It produces, per **unit of work** (default: **host-window**, e.g., 6h):
 - **Analyst decision packets** (Markdown/HTML) for EITL review items
 - **Capacity tradeoff simulation** to quantify quality vs analyst workload
 
-This repo is inspired by confidence-based routing designs used for AI+human triage in cybersecurity workflows (see the uploaded WSC 2025 paper for the architectural parallel). fileciteturn0file0
+This repo is inspired by confidence-based routing designs used for AI+human triage in cybersecurity workflows (see the uploaded WSC 2025 paper for the architectural parallel).
 
 ---
 
